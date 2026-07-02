@@ -5,6 +5,8 @@ from decimal import Decimal
 
 from masareef.cli import app
 from masareef.db import session_scope
+from masareef.services.budgets import set_budget
+from masareef.services.expenses import add_expense
 from masareef.services.fx import store_rate
 
 
@@ -55,3 +57,18 @@ def test_cli_edit_delete_and_csv_export(runner, isolated_home) -> None:
     delete_result = runner.invoke(app, ["delete", "1", "--yes"])
     assert delete_result.exit_code == 0
     assert "Deleted" in delete_result.output
+
+
+def test_cli_status_warns_when_projection_exceeds_budget(runner) -> None:
+    with session_scope() as session:
+        store_rate(session, date(2026, 6, 10), Decimal("50"), "test")
+        set_budget(session, Decimal("100"), month="2026-06")
+        add_expense(session, Decimal("2000"), "food", "groceries", date(2026, 6, 10))
+
+    status_result = runner.invoke(app, ["status", "--date", "2026-06-10"])
+
+    assert status_result.exit_code == 0
+    assert "Status" in status_result.output
+    assert "On track" in status_result.output
+    assert "Warning:" in status_result.output
+    assert "exceeds budget" in status_result.output

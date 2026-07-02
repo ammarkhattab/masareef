@@ -336,10 +336,17 @@ def show_budget(
 
 
 @app.command()
-def status() -> None:
+def status(
+    date_text: str | None = typer.Option(None, "--date", help="Report date as YYYY-MM-DD."),
+) -> None:
     """Show current-month spending status."""
+    try:
+        report_date = parse_date(date_text) if date_text is not None else None
+    except ValueError as exc:
+        raise typer.BadParameter("Date must use YYYY-MM-DD format.") from exc
+
     with _open_session() as session:
-        report = build_status_report(session)
+        report = build_status_report(session, on_date=report_date)
 
     table = Table(title=f"Status: {report.month}")
     table.add_column("Metric")
@@ -358,7 +365,15 @@ def status() -> None:
         table.add_row("Budget", "Not set")
     table.add_row("Days remaining", str(report.days_remaining))
     table.add_row("Projected", format_usd(report.projected_usd_cents))
+    table.add_row("Status", f"[{report.status_style}]{report.status_label}[/{report.status_style}]")
     console.print(table)
+
+    if report.projected_over_budget and report.budget_usd_cents is not None:
+        console.print(
+            "[red]Warning:[/red] Projected spending "
+            f"{format_usd(report.projected_usd_cents)} exceeds budget "
+            f"{format_usd(report.budget_usd_cents)}."
+        )
 
     if report.categories:
         category_table = Table(title="Top Categories")

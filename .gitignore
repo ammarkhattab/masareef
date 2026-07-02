@@ -15,5 +15,6 @@ htmlcov/
 .ruff_cache/
 .qodo/
 .masareef/
+.demo-masareef/
 masareef.db
 *.sqlite3

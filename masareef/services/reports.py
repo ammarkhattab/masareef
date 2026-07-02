@@ -19,6 +19,9 @@ class StatusReport:
     budget_usd_cents: int | None
     budget_egp_piastres_today: int | None
     percent_used: float | None
+    status_label: str
+    status_style: str
+    projected_over_budget: bool
     days_remaining: int
     projected_usd_cents: int
     categories: list[tuple[str, int]]
@@ -37,8 +40,13 @@ def build_status_report(session: Session, on_date: date | None = None) -> Status
     budget_usd_cents = budget.amount_usd_cents if budget else None
     budget_egp_piastres_today = None
     percent_used = None
+    status_label = "No budget set"
+    status_style = "yellow"
+    projected_over_budget = False
     if budget_usd_cents:
         percent_used = spent_usd_cents / budget_usd_cents * 100
+        projected_over_budget = projected_usd_cents > budget_usd_cents
+        status_label, status_style = budget_status(percent_used)
         today_rate = get_cached_rate(session, current_date) or get_latest_cached_rate(session)
         if today_rate is not None:
             budget_egp_piastres_today = round(
@@ -52,10 +60,21 @@ def build_status_report(session: Session, on_date: date | None = None) -> Status
         budget_usd_cents=budget_usd_cents,
         budget_egp_piastres_today=budget_egp_piastres_today,
         percent_used=percent_used,
+        status_label=status_label,
+        status_style=status_style,
+        projected_over_budget=projected_over_budget,
         days_remaining=days_remaining,
         projected_usd_cents=projected_usd_cents,
         categories=category_totals_for_month(session, month),
     )
+
+
+def budget_status(percent_used: float) -> tuple[str, str]:
+    if percent_used < 70:
+        return "On track", "green"
+    if percent_used <= 90:
+        return "Watch", "yellow"
+    return "Over pace", "red"
 
 
 def alert_exit_code(report: StatusReport, alert_threshold: float = 100.0) -> int:
