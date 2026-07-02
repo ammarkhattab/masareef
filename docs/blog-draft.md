@@ -29,4 +29,4 @@ This project is intentionally small, but it covers a lot of real engineering sur
 
 The repo is here: https://github.com/ammarkhattab/masareef
 
-Next, I want to dogfood it for a full week. That will probably surface awkward command names, missing flags, and edge cases that only show up when the tool is used at the end of a normal day. After that, I will tag a `v0.1.0` release and decide whether publishing to TestPyPI is worth it for this first version.
+Masareef is now tagged as `v0.1.0` and installable from GitHub with `pipx install git+https://github.com/ammarkhattab/masareef.git`. Next, I want to dogfood it for a full week. That will probably surface awkward command names, missing flags, and edge cases that only show up when the tool is used at the end of a normal day. After that, I will decide whether publishing to TestPyPI or PyPI is worth it for this first version.
