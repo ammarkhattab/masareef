@@ -137,7 +137,7 @@ flowchart TD
 
 - Current version: `0.1.0`
 - Release notes: [CHANGELOG.md](CHANGELOG.md)
-- Blog draft: [docs/blog-draft.md](docs/blog-draft.md)
+- Blog post: [I Built Masareef to Budget in Dollars While Spending in Egyptian Pounds](https://gist.github.com/ammarkhattab/29943f2ff109858afd983391c8bb52c6)
 
 ## Contributing
 
